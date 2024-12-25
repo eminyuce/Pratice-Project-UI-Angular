@@ -15,7 +15,9 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { AcquUserEntity } from '../models/acqu-user-entity';
-import { AcquUserEntityService } from './acqu-user-entity.service';
+import { AcquUserEntityStaticService } from '../services/acqu-user-entity.static.service';
+import { AcquUserEntityHttpService } from '../services/acqu-user-entity.http.service';
+import { AcquUserEntityServiceBase } from '../services/acqu-user-entity-service-base';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../shared/material.module';
@@ -44,6 +46,9 @@ import { AcquUserEntityModule } from './acqu-user-entity.module';
     MatButtonModule,
     MatCardModule,
     ConfirmDialogComponent,MaterialModule,AcquUserEntityModule
+  ],
+  providers: [
+    { provide: AcquUserEntityServiceBase, useClass: AcquUserEntityStaticService }
   ]
 })
 export class AcquUserEntityComponent implements OnInit {
@@ -72,7 +77,7 @@ export class AcquUserEntityComponent implements OnInit {
     private fb: FormBuilder,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private acquUserEntityService: AcquUserEntityService
+    private acquUserEntityService: AcquUserEntityServiceBase
   ) {
     this.initDataSource();
   }

@@ -5,14 +5,17 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AcquUserEntity } from '../models/acqu-user-entity';
 import { FilterCriteria } from '../models/filter-criteria'; 
+import { AcquUserEntityServiceBase } from './acqu-user-entity-service-base'; 
 
 @Injectable({
   providedIn: 'root'
 })
-export class AcquUserEntityService {
+export class AcquUserEntityHttpService extends AcquUserEntityServiceBase {
   private readonly baseUrl = '/api/users';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    super();
+  }
 
   getUsers(filters?: FilterCriteria): Observable<AcquUserEntity[]> {
     let params = new HttpParams();
