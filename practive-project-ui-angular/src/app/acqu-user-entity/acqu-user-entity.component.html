@@ -1,0 +1,126 @@
+<div class="container">
+    <div class="info-message">{{infoMessage}}</div>
+  
+    <button mat-raised-button (click)="toggleForm()">ADD</button>
+  
+    <div class="form-container" *ngIf="showForm">
+      <form [formGroup]="acquUserForm" (ngSubmit)="onSubmit()">
+        <mat-form-field>
+          <mat-label>User Name</mat-label>
+          <input matInput formControlName="userName">
+        </mat-form-field>
+  
+        <mat-form-field>
+          <mat-label>User Email</mat-label>
+          <input matInput formControlName="userEmail">
+          <mat-error *ngIf="acquUserForm.get('userEmail').hasError('email')">Please enter a valid email address.</mat-error>
+        </mat-form-field>
+  
+        <mat-form-field>
+          <mat-label>Phone Model</mat-label>
+          <input matInput formControlName="phoneModel" (input)="toUpper('phoneModel')">
+          <mat-error *ngIf="acquUserForm.get('phoneModel').hasError('required')">Phone model is required.</mat-error>
+        </mat-form-field>
+  
+        <mat-form-field>
+          <mat-label>User Description</mat-label>
+          <!-- Use a rich text editor here -->
+          <ckeditor formControlName="userDescription" [config]="ckEditorConfig"></ckeditor>
+        </mat-form-field>
+  
+        <button mat-raised-button color="primary" type="submit">Save</button>
+        <button mat-raised-button (click)="cancelForm()">Cancel</button>
+      </form>
+    </div>
+  
+    <mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+      <ng-container matColumnDef="select">
+        <mat-header-cell *matHeaderCellDef>
+          <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="selection.hasValue() && isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()"></mat-checkbox>
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)"></mat-checkbox>
+        </mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="userName">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>User Name</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{row.userName}}</mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="userEmail">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>User Email</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{row.userEmail}}</mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="phoneModel">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Phone Model</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <mat-select [(ngModel)]="row.phoneModel" (selectionChange)="updatePhoneModel(row, $event.value)">
+            <mat-option *ngFor="let model of phoneModels" [value]="model">{{model}}</mat-option>
+          </mat-select>
+        </mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="status">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Status</mat-header-cell>
+        <mat-cell *matCellDef="let row" [ngStyle]="{'background-color': getStatusColor(row.status)}">{{row.status}}</mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="createdDate">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Created Date</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{row.createdDate | date:'medium'}}</mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="updatedDate">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Updated Date</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{row.updatedDate | date:'medium'}}</mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <button mat-icon-button (click)="editRow(row)"><mat-icon>edit</mat-icon></button>
+          <button mat-icon-button (click)="showDetails(row)"><mat-icon>info</mat-icon></button>
+        </mat-cell>
+      </ng-container>
+  
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+  
+    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>
+  
+    <div>
+      <mat-form-field>
+        <mat-label>Filter</mat-label>
+        <input matInput (keyup)="applyFilter($event)">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>From Date</mat-label>
+        <input matInput [matDatepicker]="fromDate" (dateChange)="applyDateFilter()" formControlName="fromDate">
+        <mat-datepicker-toggle matSuffix [for]="fromDate"></mat-datepicker-toggle>
+        <mat-datepicker #fromDate></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>To Date</mat-label>
+        <input matInput [matDatepicker]="toDate" (dateChange)="applyDateFilter()" formControlName="toDate">
+        <mat-datepicker-toggle matSuffix [for]="toDate"></mat-datepicker-toggle>
+        <mat-datepicker #toDate></mat-datepicker>
+      </mat-form-field>
+  
+      <button mat-raised-button (click)="changeStatus()">Change Status</button>
+      <mat-form-field>
+        <mat-label>New Status</mat-label>
+        <mat-select formControlName="newStatus">
+          <mat-option value="DELETED">DELETED</mat-option>
+          <mat-option value="FROZEN">FROZEN</mat-option>
+          <mat-option value="LIVE">LIVE</mat-option>
+          <mat-option value="TEST">TEST</mat-option>
+        </mat-select>
+      </mat-form-field>
+  
+      <button mat-raised-button (click)="deleteDeleted()">Delete Deleted</button>
+      <button mat-raised-button (click)="exportData()">Export</button>
+    </div>
+  </div>
