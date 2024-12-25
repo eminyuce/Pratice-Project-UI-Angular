@@ -1,0 +1,30 @@
+.container {
+    padding: 20px;
+  }
+  
+  .info-message {
+    color: green;
+    margin-bottom: 10px;
+  }
+  
+  .form-container {
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    padding: 20px;
+    background-color: #f9f9f9;
+  }
+  
+  button {
+    margin: 5px;
+  }
+  
+  .mat-table {
+    margin-top: 20px;
+  }
+  
+  .mat-cell, .mat-header-cell {
+    padding: 10px;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: #e0e0e0;
+  }
