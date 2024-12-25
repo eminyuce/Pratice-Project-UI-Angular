@@ -1,73 +1,217 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatTableDataSource } from '@angular/material/table';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { AcquUserEntity } from '../models/acqu-user-entity';
-import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { AcquUserEntityService } from './acqu-user-entity.service';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { CommonModule } from '@angular/common';
+import { MaterialModule } from '../shared/material.module';
+import { AcquUserEntityModule } from './acqu-user-entity.module';
 
 @Component({
   selector: 'app-acqu-user-entity',
   templateUrl: './acqu-user-entity.component.html',
-  styleUrls: ['./acqu-user-entity.component.scss']
+  styleUrls: ['./acqu-user-entity.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    MatTableModule,
+    MatCheckboxModule,
+    MatSortModule,
+    MatPaginatorModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatIconModule,
+    MatButtonModule,
+    MatCardModule,
+    ConfirmDialogComponent,MaterialModule,AcquUserEntityModule
+  ]
 })
 export class AcquUserEntityComponent implements OnInit {
-  showForm = false;
-  infoMessage = '';
-  acquUserForm: FormGroup;
-  dataSource: MatTableDataSource<AcquUserEntity> = new MatTableDataSource();
+  displayedColumns = [
+    'select', 'userEntityId', 'userName', 'userEmail', 'phoneModel',
+    'userDescription', 'status', 'createdDate', 'updatedDate', 'actions'
+  ];
+  dataSource!: MatTableDataSource<AcquUserEntity>;
   selection = new SelectionModel<AcquUserEntity>(true, []);
-  displayedColumns: string[] = ['select', 'userName', 'userEmail', 'phoneModel', 'status', 'createdDate', 'updatedDate', 'actions'];
-  phoneModels = ['MODEL1', 'MODEL2', 'MODEL3'];  // Assume these are fetched from backend
+  userForm!: FormGroup;
+  showForm = false;
+  editMode = false;
+  message = '';
+  messageClass = '';
+  filterField = '';
+  filterOperator = '';
+  filterValue = '';
+  createdDateStart: Date | null = null;
+  createdDateEnd: Date | null = null;
+  phoneModels: string[] = [];
+  bulkStatus: string = '';
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private fb: FormBuilder, public dialog: MatDialog, private entityService: AcquUserEntityService) {
-    this.acquUserForm = this.fb.group({
-      userName: [''],
-      userEmail: ['', [Validators.email, Validators.required]],
-      phoneModel: ['', [Validators.required, Validators.pattern(/^[A-Z]+$/)]],
-      userDescription: [''],
-      fromDate: [null],
-      toDate: [null],
-      newStatus: ['']
-    });
+  constructor(
+    private fb: FormBuilder,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
+    private acquUserEntityService: AcquUserEntityService
+  ) {
+    this.initDataSource();
   }
 
   ngOnInit() {
-    // Fetch initial data from backend
-    // this.dataSource.data = ...
+    this.loadData();
+    this.loadPhoneModels();
+    this.initForm();
+  }
 
-    this.entityService.getEntities().subscribe((data) => {
-      this.dataSource.data = data;
+  private initForm() {
+    this.userForm = this.fb.group({
+      userEntityId: [null],
+      userName: ['', Validators.required],
+      userEmail: ['', [Validators.required, Validators.email]],
+      phoneModel: ['', [Validators.required, Validators.pattern(/^[A-Z]+$/)]],
+      userDescription: [''],
     });
   }
 
-  toggleForm() {
-    this.showForm = !this.showForm;
+  private initDataSource() {
+    this.dataSource = new MatTableDataSource<AcquUserEntity>();
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
 
-  toUpper(controlName: string) {
-    this.acquUserForm.controls[controlName].setValue(this.acquUserForm.controls[controlName].value?.toUpperCase());
+  loadData() {
+    this.acquUserEntityService.getUsers().subscribe(
+      (data) => {
+        this.dataSource.data = data;
+        this.showMessage('Data loaded successfully', 'success');
+      },
+      (error) => this.showMessage('Error loading data', 'error')
+    );
+  }
+
+  loadPhoneModels() {
+    this.acquUserEntityService.getPhoneModels().subscribe(
+      (models) => this.phoneModels = models,
+      (error) => this.showMessage('Error loading phone models', 'error')
+    );
   }
 
   onSubmit() {
-    if (this.acquUserForm.valid) {
-      // Save to backend
-      this.infoMessage = 'User saved successfully!';
-      this.showForm = false;
-      this.acquUserForm.reset();
+    if (this.userForm.valid) {
+      const userData = this.userForm.value;
+      const operation = this.editMode ? 
+        this.acquUserEntityService.updateUser(userData) :
+        this.acquUserEntityService.createUser(userData);
+
+      operation.subscribe(
+        () => {
+          this.showMessage(
+            `User ${this.editMode ? 'updated' : 'created'} successfully`,
+            'success'
+          );
+          this.loadData();
+          this.resetForm();
+        },
+        (error) => this.showMessage('Error saving user', 'error')
+      );
     }
   }
 
-  cancelForm() {
-    this.showForm = false;
-    this.acquUserForm.reset();
+  updatePhoneModel(element: AcquUserEntity) {
+    this.acquUserEntityService.updatePhoneModel(element).subscribe(
+      () => this.showMessage('Phone model updated successfully', 'success'),
+      (error) => this.showMessage('Error updating phone model', 'error')
+    );
   }
 
-  masterToggle() {
-    this.isAllSelected() ?
-      this.selection.clear() :
-      this.dataSource.data.forEach(row => this.selection.select(row));
+  updateBulkStatus() {
+    const selectedUsers = this.selection.selected;
+    this.acquUserEntityService.updateBulkStatus(selectedUsers, this.bulkStatus).subscribe(
+      () => {
+        this.showMessage('Status updated successfully', 'success');
+        this.loadData();
+        this.selection.clear();
+      },
+      (error) => this.showMessage('Error updating status', 'error')
+    );
+  }
+
+  deleteDeletedRecords() {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: { message: 'Are you sure you want to delete all DELETED records?' }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.acquUserEntityService.deleteDeletedRecords().subscribe(
+          () => {
+            this.showMessage('Deleted records removed successfully', 'success');
+            this.loadData();
+          },
+          (error) => this.showMessage('Error deleting records', 'error')
+        );
+      }
+    });
+  }
+
+  exportToExcel() {
+    this.acquUserEntityService.exportToExcel().subscribe(
+      (data: Blob) => {
+        const url = window.URL.createObjectURL(data);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'users.xlsx';
+        link.click();
+        window.URL.revokeObjectURL(url);
+        this.showMessage('Export successful', 'success');
+      },
+      (error) => this.showMessage('Error exporting data', 'error')
+    );
+  }
+
+  private resetForm() {
+    this.userForm.reset();
+    this.editMode = false;
+    this.showForm = false;
+  }
+
+  private showMessage(message: string, type: 'success' | 'error') {
+    this.message = message;
+    this.messageClass = type === 'success' ? 
+      'bg-green-100 text-green-800' : 
+      'bg-red-100 text-red-800';
+    setTimeout(() => this.message = '', 3000);
+  }
+
+  readonly colors = {
+    'DELETED': '#ffebee',
+    'FROZEN': '#e3f2fd',
+    'LIVE': '#e8f5e9',
+    'TEST': '#fff3e0'
+  };
+  // Helper methods for data grid
+  getStatusColor(status: 'DELETED' | 'FROZEN' | 'LIVE' | 'TEST'): string {
+    return this.colors[status] || '';
   }
 
   isAllSelected() {
@@ -76,55 +220,32 @@ export class AcquUserEntityComponent implements OnInit {
     return numSelected === numRows;
   }
 
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+  masterToggle() {
+    this.isAllSelected() ?
+      this.selection.clear() :
+      this.dataSource.data.forEach(row => this.selection.select(row));
   }
 
-  applyDateFilter() {
-    // Filter based on date range
-  }
-
-  updatePhoneModel(row: AcquUserEntity, newModel: string) {
-    // Update the model in backend and update the UI accordingly
-  }
-
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'DELETED': return 'red';
-      case 'FROZEN': return 'blue';
-      case 'LIVE': return 'green';
-      case 'TEST': return 'yellow';
-      default: return 'white';
-    }
-  }
-
-  editRow(row: AcquUserEntity) {
-    this.acquUserForm.patchValue(row);
+  editRecord(element: AcquUserEntity) {
     this.showForm = true;
+    this.editMode = true;
+    this.userForm.patchValue(element);
   }
 
-  showDetails(row: AcquUserEntity) {
-    // Open a dialog with more details
+  viewDetails(element: AcquUserEntity) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: { message: `Details of ${element.userName}` }
+    });
   }
 
-  changeStatus() {
-    const status = this.acquUserForm.get('newStatus')?.value;
-    if (status) {
-      this.selection.selected.forEach(item => {
-        // Change status in backend
-      });
-      this.infoMessage = 'Status changed successfully!';
-    } else {
-      this.infoMessage = 'Please select a new status.';
+  toggleForm() {
+    this.showForm = !this.showForm;
+    if (!this.showForm) {
+      this.resetForm();
     }
   }
 
-  deleteDeleted() {
-    // Confirm deletion and then delete from backend
-  }
-
-  exportData() {
-    // Export to Excel
+  reloadData() {
+    this.loadData();
   }
 }

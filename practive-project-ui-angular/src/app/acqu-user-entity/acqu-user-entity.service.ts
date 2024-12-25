@@ -1,33 +1,83 @@
+// user.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { AcquUserEntity } from '../models/acqu-user-entity';
+import { FilterCriteria } from '../models/filter-criteria'; 
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class AcquUserEntityService {
-  private apiUrl = 'http://localhost:8080/api/acqu-user-entities'; // Replace with your API URL
+  private readonly baseUrl = '/api/users';
 
   constructor(private http: HttpClient) {}
 
-  getEntities(): Observable<AcquUserEntity[]> {
-    return this.http.get<AcquUserEntity[]>(this.apiUrl);
+  getUsers(filters?: FilterCriteria): Observable<AcquUserEntity[]> {
+    let params = new HttpParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) params = params.append(key, value.toString());
+      });
+    }
+    return this.http.get<AcquUserEntity[]>(`${this.baseUrl}`, { params }).pipe(
+      map(users => users.map(user => ({
+        ...user,
+        createdDate: new Date(user.createdDate),
+        updatedDate: new Date(user.updatedDate)
+      })))
+    );
   }
 
-  getEntityById(id: string): Observable<AcquUserEntity> {
-    return this.http.get<AcquUserEntity>(`${this.apiUrl}/${id}`);
+  createUser(user: Partial<AcquUserEntity>): Observable<AcquUserEntity> {
+    return this.http.post<AcquUserEntity>(`${this.baseUrl}`, user);
   }
 
-  createEntity(entity: AcquUserEntity): Observable<AcquUserEntity> {
-    return this.http.post<AcquUserEntity>(this.apiUrl, entity);
+  updateUser(user: AcquUserEntity): Observable<AcquUserEntity> {
+    return this.http.put<AcquUserEntity>(`${this.baseUrl}/${user.userEntityId}`, user);
   }
 
-  updateEntity(id: string, entity: AcquUserEntity): Observable<AcquUserEntity> {
-    return this.http.put<AcquUserEntity>(`${this.apiUrl}/${id}`, entity);
+  deleteUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
-  deleteEntity(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  getPhoneModels(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseUrl}/phone-models`);
+  }
+
+  updatePhoneModel(user: AcquUserEntity): Observable<AcquUserEntity> {
+    return this.http.patch<AcquUserEntity>(
+      `${this.baseUrl}/${user.userEntityId}/phone-model`,
+      { phoneModel: user.phoneModel }
+    );
+  }
+
+  updateBulkStatus(users: AcquUserEntity[], status: string): Observable<void> {
+    const userIds = users.map(user => user.userEntityId);
+    return this.http.patch<void>(`${this.baseUrl}/bulk-status`, {
+      userIds,
+      status
+    });
+  }
+
+  deleteDeletedRecords(): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/deleted`);
+  }
+
+  exportToExcel(): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/export`, {
+      responseType: 'blob'
+    });
+  }
+
+  searchGlobal(searchTerm: string): Observable<AcquUserEntity[]> {
+    return this.http.get<AcquUserEntity[]>(`${this.baseUrl}/search`, {
+      params: new HttpParams().set('term', searchTerm)
+    });
+  }
+
+  getAuditTrail(userId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/${userId}/audit`);
   }
 }
