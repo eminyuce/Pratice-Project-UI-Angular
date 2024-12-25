@@ -73,10 +73,10 @@ export class AcquUserEntityComponent implements OnInit {
   filterField = '';
   filterOperator = '';
   filterValue = '';
-  createdFromPicker: Date | null = null;
-  createdToPicker: Date | null = null;
-  updatedFromPicker: Date | null = null;
-  updatedToPicker: Date | null = null;
+  createdFrom: Date | null = null;
+  createdTo: Date | null = null;
+  updatedFrom: Date | null = null;
+  updatedTo: Date | null = null;
   phoneModels: string[] = [];
   bulkStatus: string = '';
   defaultPageSize = 10;
@@ -149,10 +149,10 @@ export class AcquUserEntityComponent implements OnInit {
   loadData() {
     var acquUserEntitySearchParams: AcquUserEntitySearchParams = {
       criteriaList: this.filters,
-      createdFrom: this.createdFromPicker,
-      createdTo: this.createdToPicker,
-      updatedFrom: this.updatedFromPicker,
-      updatedTo: this.updatedToPicker
+      createdFrom: this.createdFrom,
+      createdTo: this.createdTo,
+      updatedFrom: this.updatedFrom,
+      updatedTo: this.updatedTo
     };
 
     this.acquUserEntityService.getUsers(acquUserEntitySearchParams).subscribe({
@@ -162,27 +162,27 @@ export class AcquUserEntityComponent implements OnInit {
 
          if (this.filters.length > 0) {
           // Has filters
-          if (this.createdFromPicker && this.createdToPicker) {
-              this.showMessage('Data loaded successfully with filters with selected created date range', 'success');
-          } else if (this.updatedFromPicker && this.updatedToPicker) {
-              this.showMessage('Data loaded successfully with filters with selected updated date range', 'success');
-          } else if (this.createdFromPicker || this.createdToPicker || this.updatedFromPicker || this.updatedToPicker) {
-              this.showMessage('Data loaded successfully with filters and date range', 'success');
+          if (this.createdFrom && this.createdTo && this.updatedFrom && this.updatedTo) {
+            this.showMessage(`Data loaded successfully with ${this.filters.length} filters and date range`, 'success');
+          } else if (this.createdFrom && this.createdTo) {
+            this.showMessage(`Data loaded successfully with ${this.filters.length} filters and selected created date range`, 'success');
+          } else if (this.updatedFrom && this.updatedTo) {
+            this.showMessage(`Data loaded successfully with ${this.filters.length} filters and selected updated date range`, 'success');
           } else {
-              this.showMessage('Data loaded successfully with filters', 'success');
+            this.showMessage(`Data loaded successfully with ${this.filters.length} filters`, 'success');
           }
-      } else {
+        } else {
           // No filters
-          if (this.createdFromPicker && this.createdToPicker) {
-              this.showMessage('Data loaded successfully with selected created date range', 'success');
-          } else if (this.updatedFromPicker && this.updatedToPicker) {
-              this.showMessage('Data loaded successfully with selected updated date range', 'success');
-          } else if (this.createdFromPicker || this.createdToPicker || this.updatedFromPicker || this.updatedToPicker) {
-              this.showMessage('Data loaded successfully with selected date range', 'success');
+          if (this.createdFrom && this.createdTo && this.updatedFrom && this.updatedTo) {
+            this.showMessage('Data loaded successfully with selected date range', 'success');
+          } else if (this.createdFrom && this.createdTo) {
+            this.showMessage('Data loaded successfully with selected created date range', 'success');
+          } else if (this.updatedFrom && this.updatedTo) {
+            this.showMessage('Data loaded successfully with selected updated date range', 'success');
           } else {
-              this.showMessage('Data loaded successfully without any filters or date range', 'success');
+            this.showMessage('Data loaded successfully without any filters or date range', 'success');
           }
-      }
+        }
 
       },
       error: (error) => this.showMessage('Error loading data', 'error')

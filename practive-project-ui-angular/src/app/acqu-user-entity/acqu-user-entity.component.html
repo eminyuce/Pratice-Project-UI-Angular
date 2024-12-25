@@ -82,30 +82,30 @@
 <div class="flex gap-4 mb-4">
   <mat-form-field appearance="fill">
     <mat-label>From Created Date</mat-label>
-    <input matInput [matDatepicker]="createdFromPicker" placeholder="Choose a date" [(ngModel)]="createdFromPicker">
+    <input matInput [matDatepicker]="createdFromPicker" placeholder="Choose a date" [(ngModel)]="createdFrom">
     <mat-datepicker-toggle matSuffix [for]="createdFromPicker"></mat-datepicker-toggle>
-    <mat-datepicker #createdFromPicker></mat-datepicker>
+    <mat-datepicker #createdFromPicker></mat-datepicker> <!-- Added this line -->
   </mat-form-field>
 
   <mat-form-field appearance="fill">
     <mat-label>To Created Date</mat-label>
-    <input matInput [matDatepicker]="createdToPicker" placeholder="Choose a date" [(ngModel)]="createdToPicker">
+    <input matInput [matDatepicker]="createdToPicker" placeholder="Choose a date" [(ngModel)]="createdTo">
     <mat-datepicker-toggle matSuffix [for]="createdToPicker"></mat-datepicker-toggle>
-    <mat-datepicker #createdToPicker></mat-datepicker>
+    <mat-datepicker #createdToPicker></mat-datepicker> <!-- Added this line -->
   </mat-form-field>
 
   <mat-form-field appearance="fill">
     <mat-label>From Updated Date</mat-label>
-    <input matInput [matDatepicker]="updatedFromPicker" placeholder="Choose a date" [(ngModel)]="updatedFromPicker">
+    <input matInput [matDatepicker]="updatedFromPicker" placeholder="Choose a date" [(ngModel)]="updatedFrom">
     <mat-datepicker-toggle matSuffix [for]="updatedFromPicker"></mat-datepicker-toggle>
-    <mat-datepicker #updatedFromPicker></mat-datepicker>
+    <mat-datepicker #updatedFromPicker></mat-datepicker> <!-- Added this line -->
   </mat-form-field>
 
   <mat-form-field appearance="fill">
     <mat-label>To Updated Date</mat-label>
-    <input matInput [matDatepicker]="updatedToPicker" placeholder="Choose a date" [(ngModel)]="updatedToPicker">
+    <input matInput [matDatepicker]="updatedToPicker" placeholder="Choose a date" [(ngModel)]="updatedTo">
     <mat-datepicker-toggle matSuffix [for]="updatedToPicker"></mat-datepicker-toggle>
-    <mat-datepicker #updatedToPicker></mat-datepicker>
+    <mat-datepicker #updatedToPicker></mat-datepicker> <!-- Added this line -->
   </mat-form-field>
 </div>
 
