@@ -64,7 +64,7 @@ export class AcquUserEntityHttpService extends AcquUserEntityServiceBase {
     });
   }
 
-  deleteDeletedRecords(): Observable<void> {
+  deleteDeletedRecords(): Observable<any> {
     return this.http.delete<void>(`${this.baseUrl}/deleted`);
   }
 

@@ -1,6 +1,7 @@
 // user.service.ts
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AcquUserEntityServiceBase } from './acqu-user-entity-service-base'; // Adjust the path as necessary
 import { AcquUserEntity } from '../models/acqu-user-entity';
 import { FilterCriteria } from '../models/filter-criteria';
@@ -101,17 +102,32 @@ export class AcquUserEntityStaticService extends AcquUserEntityServiceBase {
         this.staticUsers[index].status = bulkStatus as 'DELETED' | 'FROZEN' | 'LIVE' | 'TEST';
       }
     });
-    return of();
+    return of().pipe(
+      catchError((error) => {
+        console.error('Error in updateBulkStatus:', error);
+        return of();
+      })
+    );
   }
 
-  deleteDeletedRecords(): Observable<void> {
+  deleteDeletedRecords(): Observable<any> {
     this.staticUsers = this.staticUsers.filter((user) => user.status !== 'DELETED');
-    return of();
+    return of(this.staticUsers).pipe( // Emit the updated list of users
+      catchError((error) => {
+        console.error('Error in deleteDeletedRecords:', error);
+        return of(); // Return an empty observable in case of error
+      })
+    );
   }
 
   exportToExcel(): Observable<Blob> {
     const blob = new Blob(['Static Excel Data'], { type: 'application/vnd.ms-excel' });
-    return of(blob);
+    return of(blob).pipe(
+      catchError((error) => {
+        console.error('Error in exportToExcel:', error);
+        return of();
+      })
+    );
   }
 
   searchGlobal(searchTerm: string): Observable<AcquUserEntity[]> {
@@ -120,7 +136,12 @@ export class AcquUserEntityStaticService extends AcquUserEntityServiceBase {
         value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
-    return of(filteredUsers);
+    return of(filteredUsers).pipe(
+      catchError((error) => {
+        console.error('Error in searchGlobal:', error);
+        return of();
+      })
+    );
   }
 
   getAuditTrail(userId: number): Observable<any[]> {
@@ -128,6 +149,11 @@ export class AcquUserEntityStaticService extends AcquUserEntityServiceBase {
       { action: 'Created', timestamp: new Date('2023-01-01T10:00:00Z') },
       { action: 'Updated', timestamp: new Date('2023-01-15T15:00:00Z') },
     ];
-    return of(auditTrail);
+    return of(auditTrail).pipe(
+      catchError((error) => {
+        console.error('Error in getAuditTrail:', error);
+        return of();
+      })
+    );
   }
 }

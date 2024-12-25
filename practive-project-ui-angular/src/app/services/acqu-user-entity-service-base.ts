@@ -10,7 +10,7 @@ export abstract class AcquUserEntityServiceBase {
   abstract getPhoneModels(): Observable<string[]>;
   abstract updatePhoneModel(user: AcquUserEntity): Observable<AcquUserEntity>;
   abstract updateBulkStatus(users: AcquUserEntity[], bulkStatus: string): Observable<void>;
-  abstract deleteDeletedRecords(): Observable<void>;
+  abstract deleteDeletedRecords(): Observable<any>;
   abstract exportToExcel(): Observable<Blob>;
   abstract searchGlobal(searchTerm: string): Observable<AcquUserEntity[]>;
   abstract getAuditTrail(userId: number): Observable<any[]>;

@@ -105,20 +105,20 @@ export class AcquUserEntityComponent implements OnInit {
   }
 
   loadData() {
-    this.acquUserEntityService.getUsers().subscribe(
-      (data) => {
+    this.acquUserEntityService.getUsers().subscribe({
+      next: (data) => {
         this.dataSource.data = data;
         this.showMessage('Data loaded successfully', 'success');
       },
-      (error) => this.showMessage('Error loading data', 'error')
-    );
+      error: (error) => this.showMessage('Error loading data', 'error')
+    });
   }
 
   loadPhoneModels() {
-    this.acquUserEntityService.getPhoneModels().subscribe(
-      (models) => this.phoneModels = models,
-      (error) => this.showMessage('Error loading phone models', 'error')
-    );
+    this.acquUserEntityService.getPhoneModels().subscribe({
+      next: (models) => this.phoneModels = models,
+      error: (error) => this.showMessage('Error loading phone models', 'error')
+    });
   }
 
   onSubmit() {
@@ -128,8 +128,8 @@ export class AcquUserEntityComponent implements OnInit {
         this.acquUserEntityService.updateUser(userData) :
         this.acquUserEntityService.createUser(userData);
 
-      operation.subscribe(
-        () => {
+      operation.subscribe({
+        next: () => {
           this.showMessage(
             `User ${this.editMode ? 'updated' : 'created'} successfully`,
             'success'
@@ -137,28 +137,28 @@ export class AcquUserEntityComponent implements OnInit {
           this.loadData();
           this.resetForm();
         },
-        (error) => this.showMessage('Error saving user', 'error')
-      );
+        error: (error) => this.showMessage('Error saving user', 'error')
+      });
     }
   }
 
   updatePhoneModel(element: AcquUserEntity) {
-    this.acquUserEntityService.updatePhoneModel(element).subscribe(
-      () => this.showMessage('Phone model updated successfully', 'success'),
-      (error) => this.showMessage('Error updating phone model', 'error')
-    );
+    this.acquUserEntityService.updatePhoneModel(element).subscribe({
+      next: () => this.showMessage('Phone model updated successfully', 'success'),
+      error: (error) => this.showMessage('Error updating phone model', 'error')
+    });
   }
 
   updateBulkStatus() {
     const selectedUsers = this.selection.selected;
-    this.acquUserEntityService.updateBulkStatus(selectedUsers, this.bulkStatus).subscribe(
-      () => {
+    this.acquUserEntityService.updateBulkStatus(selectedUsers, this.bulkStatus).subscribe({
+      next: () => {
         this.showMessage('Status updated successfully', 'success');
         this.loadData();
         this.selection.clear();
       },
-      (error) => this.showMessage('Error updating status', 'error')
-    );
+      error: (error) => this.showMessage('Error updating status', 'error')
+    });
   }
 
   deleteDeletedRecords() {
@@ -166,22 +166,36 @@ export class AcquUserEntityComponent implements OnInit {
       data: { message: 'Are you sure you want to delete all DELETED records?' }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.acquUserEntityService.deleteDeletedRecords().subscribe(
-          () => {
-            this.showMessage('Deleted records removed successfully', 'success');
-            this.loadData();
-          },
-          (error) => this.showMessage('Error deleting records', 'error')
-        );
+    dialogRef.afterClosed().subscribe({
+      next: (result) => {
+        if (result) {
+          this.acquUserEntityService.deleteDeletedRecords().subscribe({
+            next: value => {
+              console.log('Next value:', value); // Debugging statement
+              this.showMessage('Deleted records removed successfully', 'success');
+              this.loadData();
+            },
+            error: (error) => {
+              console.error('Error:', error); // Debugging statement
+              this.showMessage('Error deleting records', 'error');
+            },
+            complete: () => {
+              console.log('Complete'); // Debugging statement
+              // handle completion
+            }
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error:', error); // Debugging statement
+        this.showMessage('Error closing dialog', 'error');
       }
     });
   }
 
   exportToExcel() {
-    this.acquUserEntityService.exportToExcel().subscribe(
-      (data: Blob) => {
+    this.acquUserEntityService.exportToExcel().subscribe({
+      next: (data: Blob) => {
         const url = window.URL.createObjectURL(data);
         const link = document.createElement('a');
         link.href = url;
@@ -190,8 +204,8 @@ export class AcquUserEntityComponent implements OnInit {
         window.URL.revokeObjectURL(url);
         this.showMessage('Export successful', 'success');
       },
-      (error) => this.showMessage('Error exporting data', 'error')
-    );
+      error: (error) => this.showMessage('Error exporting data', 'error')
+    });
   }
 
   private resetForm() {
@@ -226,8 +240,8 @@ export class AcquUserEntityComponent implements OnInit {
   }
 
   masterToggle() {
-    this.isAllSelected() ?
-      this.selection.clear() :
+    this.isAllSelected() ? 
+      this.selection.clear() : 
       this.dataSource.data.forEach(row => this.selection.select(row));
   }
 
