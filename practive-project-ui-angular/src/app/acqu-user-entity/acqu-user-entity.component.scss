@@ -1,30 +1,157 @@
+/* General Styles */
+body {
+  font-family: 'Roboto', Arial, sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+/* Container Styling */
 .container {
-    padding: 20px;
+  width: 95%;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+/* Message Section */
+.container .message {
+  font-size: 1rem;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.container .message.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.container .message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Control Panel */
+.flex {
+  display: flex;
+  align-items: center;
+}
+
+.flex.justify-between {
+  justify-content: space-between;
+}
+
+.flex.gap-2 > * {
+  margin-right: 8px;
+}
+
+button {
+  font-size: 0.875rem;
+}
+
+/* Form Section */
+mat-card {
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+.grid {
+  display: grid;
+}
+
+.grid.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.flex.justify-end {
+  justify-content: flex-end;
+}
+
+/* Table Section */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table thead th {
+  background-color: #3f51b5;
+  color: white;
+  text-align: left;
+  padding: 0.75rem;
+  font-weight: bold;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #f1f1f1;
+}
+
+table tbody tr:hover {
+  background-color: #e0e0e0;
+  cursor: pointer;
+}
+
+table th,
+table td {
+  padding: 0.75rem;
+  text-align: left;
+}
+
+mat-paginator {
+  margin-top: 1rem;
+}
+
+/* Action Buttons */
+button.mat-icon-button {
+  color: #3f51b5;
+}
+
+button.mat-icon-button:hover {
+  color: #1e3a8a;
+}
+
+.mat-icon {
+  font-size: 1.25rem;
+}
+
+/* Select Dropdown */
+mat-form-field {
+  margin: 1rem 0;
+}
+
+.mat-select {
+  background-color: white;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+  .grid.grid-cols-2 {
+    grid-template-columns: 1fr;
   }
-  
-  .info-message {
-    color: green;
-    margin-bottom: 10px;
+
+  .flex.justify-between {
+    flex-direction: column;
+    gap: 1rem;
   }
-  
-  .form-container {
-    margin-top: 20px;
-    border: 1px solid #ccc;
-    padding: 20px;
-    background-color: #f9f9f9;
-  }
-  
+
   button {
-    margin: 5px;
+    width: 100%;
   }
-  
-  .mat-table {
-    margin-top: 20px;
-  }
-  
-  .mat-cell, .mat-header-cell {
-    padding: 10px;
-    border-bottom-width: 1px;
-    border-bottom-style: solid;
-    border-bottom-color: #e0e0e0;
-  }
+}

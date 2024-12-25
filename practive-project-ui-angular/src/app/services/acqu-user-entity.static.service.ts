@@ -9,39 +9,37 @@ import { FilterCriteria } from '../models/filter-criteria';
   providedIn: 'root',
 })
 export class AcquUserEntityStaticService extends AcquUserEntityServiceBase {
-
-  private staticUsers: AcquUserEntity[] = [
-    {
-      userEntityId: 1,
-      userName: 'John Doe',
-      userEmail: 'john.doe@example.com',
-      phoneModel: 'iPhone 13',
-      userDescription: 'A regular user for testing purposes.',
-      status: 'LIVE',
-      createdDate: new Date('2023-01-01T10:00:00Z'),
-      updatedDate: new Date('2023-01-15T15:00:00Z'),
-    },
-    {
-      userEntityId: 2,
-      userName: 'Jane Smith',
-      userEmail: 'jane.smith@example.com',
-      phoneModel: 'Samsung Galaxy S22',
-      userDescription: 'Another test user with specific preferences.',
-      status: 'FROZEN',
-      createdDate: new Date('2023-02-01T11:00:00Z'),
-      updatedDate: new Date('2023-02-10T16:00:00Z'),
-    },
-  ];
-
   private staticPhoneModels: string[] = [
     'iPhone 13',
     'Samsung Galaxy S22',
     'Google Pixel 7',
+    'OnePlus 9',
+    'Nokia XR20',
   ];
 
- constructor() {
+  constructor() {
     super();
   }
+
+  // Method to generate 300 static users
+  private generateStaticUsers(): AcquUserEntity[] {
+    const users: AcquUserEntity[] = [];
+    for (let i = 1; i <= 5; i++) {
+      users.push({
+        userEntityId: i,
+        userName: `User ${i}`,
+        userEmail: `user${i}@example.com`,
+        phoneModel: this.staticPhoneModels[i % this.staticPhoneModels.length],
+        userDescription: `This is a description for User ${i}.`,
+        status: i % 4 === 0 ? 'DELETED' : i % 3 === 0 ? 'FROZEN' : 'LIVE',
+        createdDate: new Date(2023, 0, i),
+        updatedDate: new Date(2023, 0, i + 1),
+      });
+    }
+    return users;
+  }
+
+  private staticUsers = this.generateStaticUsers();
 
   getUsers(filters?: FilterCriteria): Observable<AcquUserEntity[]> {
     let filteredUsers = this.staticUsers;

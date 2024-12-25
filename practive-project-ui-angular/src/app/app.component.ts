@@ -3,6 +3,8 @@ import { RouterOutlet } from '@angular/router';
 import { MaterialModule } from './shared/material.module';
 import { AcquUserEntityModule } from './acqu-user-entity/acqu-user-entity.module';
 import { CommonModule } from '@angular/common';
+
+
 @Component({
   selector: 'app-root',
   imports: [
