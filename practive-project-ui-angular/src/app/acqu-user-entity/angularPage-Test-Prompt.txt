@@ -15,12 +15,20 @@ data-grid will have checkbox for each records so that user can change record sta
 data-grid will display different color for each status of record
 
 data-grid will have a button to see detail of the record as popup next to checkbox
+data-grid will have  pagination to handle large datasets efficiently, allowing users to navigate through pages of records.
 
 data-grid will have dropdowns for each phoneModel field of record so user can edit/reselect it again so that user can update entire table once entirely, the dropdowns values are coming from backend java controller services so it will be dynamic
 
 there will be another button to delete all DELETED status record and pop up message will come up as confirmation button so user can make user it is correct thing to do for deletion
 
 there will be export functionality button to get excel of data-grid with its selected filter
+
+◦	Add comprehensive error handling to display meaningful messages to the user in case of validation errors or server issues.
+Maintain an audit trail to track changes made to each record, showing who made the changes and when.
+
+Implement role-based access control (RBAC) to restrict access to certain functionalities based on user roles.
+
+Implement a global search bar to search across all fields of the records on the top of data-grid such as a textbox for search value and search button
 
 @Entity
 @Table(name = "AcquUserEntity")
