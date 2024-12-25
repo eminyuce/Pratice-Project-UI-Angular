@@ -4,8 +4,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AcquUserEntity } from '../models/acqu-user-entity';
-import { FilterCriteria } from '../models/filter-criteria'; 
 import { AcquUserEntityServiceBase } from './acqu-user-entity-service-base'; 
+import { AcquUserEntitySearchParams } from '../models/acqu-user-entity-search-params';
 
 @Injectable({
   providedIn: 'root'
@@ -17,13 +17,9 @@ export class AcquUserEntityHttpService extends AcquUserEntityServiceBase {
     super();
   }
 
-  getUsers(filters?: FilterCriteria): Observable<AcquUserEntity[]> {
+  getUsers(acquUserEntitySearchParams: AcquUserEntitySearchParams): Observable<AcquUserEntity[]> {
     let params = new HttpParams();
-    if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) params = params.append(key, value.toString());
-      });
-    }
+   
     return this.http.get<AcquUserEntity[]>(`${this.baseUrl}`, { params }).pipe(
       map(users => users.map(user => ({
         ...user,
@@ -56,14 +52,15 @@ export class AcquUserEntityHttpService extends AcquUserEntityServiceBase {
     );
   }
 
-  updateBulkStatus(users: AcquUserEntity[], status: string): Observable<void> {
+  updateBulkStatus(users: AcquUserEntity[], status: string): Observable<any> {
     const userIds = users.map(user => user.userEntityId);
-    return this.http.patch<void>(`${this.baseUrl}/bulk-status`, {
+    return this.http.patch<AcquUserEntity[]>(`${this.baseUrl}/bulk-status`, {
       userIds,
       status
     });
   }
 
+  
   deleteDeletedRecords(): Observable<any> {
     return this.http.delete<void>(`${this.baseUrl}/deleted`);
   }
@@ -71,12 +68,6 @@ export class AcquUserEntityHttpService extends AcquUserEntityServiceBase {
   exportToExcel(): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/export`, {
       responseType: 'blob'
-    });
-  }
-
-  searchGlobal(searchTerm: string): Observable<AcquUserEntity[]> {
-    return this.http.get<AcquUserEntity[]>(`${this.baseUrl}/search`, {
-      params: new HttpParams().set('term', searchTerm)
     });
   }
 

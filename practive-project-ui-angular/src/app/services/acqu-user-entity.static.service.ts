@@ -4,7 +4,7 @@ import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AcquUserEntityServiceBase } from './acqu-user-entity-service-base'; // Adjust the path as necessary
 import { AcquUserEntity } from '../models/acqu-user-entity';
-import { FilterCriteria } from '../models/filter-criteria';
+import { AcquUserEntitySearchParams } from '../models/acqu-user-entity-search-params';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +25,7 @@ export class AcquUserEntityStaticService extends AcquUserEntityServiceBase {
   // Method to generate 300 static users
   private generateStaticUsers(): AcquUserEntity[] {
     const users: AcquUserEntity[] = [];
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 500; i++) {
       users.push({
         userEntityId: i,
         userName: `User ${i}`,
@@ -34,7 +34,7 @@ export class AcquUserEntityStaticService extends AcquUserEntityServiceBase {
         userDescription: `This is a description for User ${i}.`,
         status: i % 4 === 0 ? 'DELETED' : i % 3 === 0 ? 'FROZEN' : 'LIVE',
         createdDate: new Date(2023, 0, i),
-        updatedDate: new Date(2023, 0, i + 1),
+        updatedDate: new Date(2023, 0, (i + 1)% 30),
       });
     }
     return users;
@@ -42,19 +42,8 @@ export class AcquUserEntityStaticService extends AcquUserEntityServiceBase {
 
   private staticUsers = this.generateStaticUsers();
 
-  getUsers(filters?: FilterCriteria): Observable<AcquUserEntity[]> {
+  getUsers(acquUserEntitySearchParams: AcquUserEntitySearchParams): Observable<AcquUserEntity[]> {
     let filteredUsers = this.staticUsers;
-
-    if (filters) {
-      filteredUsers = this.staticUsers.filter((user) => {
-        return Object.entries(filters).every(([key, value]) =>
-          value
-            ? user[key as keyof AcquUserEntity]?.toString().includes(value.toString())
-            : true
-        );
-      });
-    }
-
     return of(filteredUsers);
   }
 
@@ -95,14 +84,14 @@ export class AcquUserEntityStaticService extends AcquUserEntityServiceBase {
     return of(this.staticUsers[index]);
   }
 
-  updateBulkStatus(users: AcquUserEntity[], bulkStatus: string): Observable<void> {
+  updateBulkStatus(users: AcquUserEntity[], bulkStatus: string): Observable<any> {
     users.forEach((user) => {
       const index = this.staticUsers.findIndex((u) => u.userEntityId === user.userEntityId);
       if (index !== -1) {
         this.staticUsers[index].status = bulkStatus as 'DELETED' | 'FROZEN' | 'LIVE' | 'TEST';
       }
     });
-    return of().pipe(
+    return of(users).pipe(
       catchError((error) => {
         console.error('Error in updateBulkStatus:', error);
         return of();
@@ -125,20 +114,6 @@ export class AcquUserEntityStaticService extends AcquUserEntityServiceBase {
     return of(blob).pipe(
       catchError((error) => {
         console.error('Error in exportToExcel:', error);
-        return of();
-      })
-    );
-  }
-
-  searchGlobal(searchTerm: string): Observable<AcquUserEntity[]> {
-    const filteredUsers = this.staticUsers.filter((user) =>
-      Object.values(user).some((value) =>
-        value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    );
-    return of(filteredUsers).pipe(
-      catchError((error) => {
-        console.error('Error in searchGlobal:', error);
         return of();
       })
     );

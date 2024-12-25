@@ -21,7 +21,7 @@
       </button>
     </div>
   </div>
-
+ 
   <!-- Form Section -->
   <mat-card *ngIf="showForm" class="mb-4">
     <mat-card-content>
@@ -52,7 +52,74 @@
       </form>
     </mat-card-content>
   </mat-card>
+<!-- Filter Section -->
+<div fxLayout="row wrap" fxLayoutAlign="space-between start">
+  <div fxLayout="row wrap" fxLayoutGap="5px">
+    <div class="filter-container">
+      <label for="searchField">Search Field:</label>
+      <select id="searchField" [(ngModel)]="searchField">
+        <option *ngFor="let option of searchFieldOptions" [value]="option.value">{{ option.display }}</option>
+      </select>
+      
+      <label for="searchType">Search Type:</label>
+      <select id="searchType" [(ngModel)]="searchType">
+        <option *ngFor="let option of searchTypeOptions" [value]="option.value">{{ option.display }}</option>
+      </select>
+      
+      <label for="searchValue">Search Value:</label>
+      <input *ngIf="searchField !== 'textBox'" type="text" id="searchValue" [(ngModel)]="searchValue" placeholder="Enter search value">
+      <button mat-raised-button  color="primary" (click)="addFilter()">
+        Add Filter
+      </button>
+      <button mat-raised-button  color="warn" (click)="loadData()">
+        Search Data Based On Filters and Date Range
+      </button>
+    </div>
+  </div>
+</div>
 
+<!-- Date Filter Section -->
+<div class="flex gap-4 mb-4">
+  <mat-form-field appearance="fill">
+    <mat-label>From Created Date</mat-label>
+    <input matInput [matDatepicker]="createdFromPicker" placeholder="Choose a date" [(ngModel)]="createdFromPicker">
+    <mat-datepicker-toggle matSuffix [for]="createdFromPicker"></mat-datepicker-toggle>
+    <mat-datepicker #createdFromPicker></mat-datepicker>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>To Created Date</mat-label>
+    <input matInput [matDatepicker]="createdToPicker" placeholder="Choose a date" [(ngModel)]="createdToPicker">
+    <mat-datepicker-toggle matSuffix [for]="createdToPicker"></mat-datepicker-toggle>
+    <mat-datepicker #createdToPicker></mat-datepicker>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>From Updated Date</mat-label>
+    <input matInput [matDatepicker]="updatedFromPicker" placeholder="Choose a date" [(ngModel)]="updatedFromPicker">
+    <mat-datepicker-toggle matSuffix [for]="updatedFromPicker"></mat-datepicker-toggle>
+    <mat-datepicker #updatedFromPicker></mat-datepicker>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>To Updated Date</mat-label>
+    <input matInput [matDatepicker]="updatedToPicker" placeholder="Choose a date" [(ngModel)]="updatedToPicker">
+    <mat-datepicker-toggle matSuffix [for]="updatedToPicker"></mat-datepicker-toggle>
+    <mat-datepicker #updatedToPicker></mat-datepicker>
+  </mat-form-field>
+</div>
+
+  <!-- Filters List -->
+  <div class="row ml-0 m-2">
+    <div class="col">
+      <ul class="filter-list">
+        <li *ngFor="let filter of filters; let i = index" class="filter-item">
+          {{ fieldTxt(filter.field) }} {{ operationTxt(filter.operator) }} {{ filter.value }}
+          <button class="btn btn-secondary remove-btn" (click)="removeFilter(i)">X</button>
+        </li>
+      </ul>
+    </div>
+  </div>
   <!-- Data Table Section -->
   <mat-card>
     <mat-card-content>
@@ -139,8 +206,11 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
-
-      <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>
+ 
+      <mat-paginator [length]="dataSource.data.length"
+               [pageSize]="defaultPageSize"
+               [pageSizeOptions]="defaultPageSizeOptions">
+      </mat-paginator>
     </mat-card-content>
   </mat-card>
 

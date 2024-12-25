@@ -22,6 +22,9 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../shared/material.module';
 import { AcquUserEntityModule } from './acqu-user-entity.module';
+import { SearchCriteria } from '../models/search-criteria.model';
+import { formatDate } from '@angular/common';
+import { AcquUserEntitySearchParams } from '../models/acqu-user-entity-search-params';
 
 @Component({
   selector: 'app-acqu-user-entity',
@@ -56,6 +59,10 @@ export class AcquUserEntityComponent implements OnInit {
     'select', 'userEntityId', 'userName', 'userEmail', 'phoneModel',
     'userDescription', 'status', 'createdDate', 'updatedDate', 'actions'
   ];
+  searchField: string = '';
+  searchType: string = '';
+  searchValue: string = '';
+  filters: SearchCriteria[] = [];
   dataSource!: MatTableDataSource<AcquUserEntity>;
   selection = new SelectionModel<AcquUserEntity>(true, []);
   userForm!: FormGroup;
@@ -66,12 +73,35 @@ export class AcquUserEntityComponent implements OnInit {
   filterField = '';
   filterOperator = '';
   filterValue = '';
-  createdDateStart: Date | null = null;
-  createdDateEnd: Date | null = null;
+  createdFromPicker: Date | null = null;
+  createdToPicker: Date | null = null;
+  updatedFromPicker: Date | null = null;
+  updatedToPicker: Date | null = null;
   phoneModels: string[] = [];
   bulkStatus: string = '';
+  defaultPageSize = 10;
+  defaultPageSizeOptions: number[] = [5, 10, 25, 100,200,500,1000];
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+   searchFieldOptions = [
+    { value: 'userEntityId', display: 'User Entity ID' },
+    { value: 'userName', display: 'User Name' },
+    { value: 'userEmail', display: 'User Email' },
+    { value: 'phoneModel', display: 'Phone Model' },
+    { value: 'userDescription', display: 'User Description' },
+    { value: 'status', display: 'Status' },
+    { value: 'createdDate', display: 'Created Date' },
+    { value: 'updatedDate', display: 'Updated Date' }
+  ];
+  
+  searchTypeOptions = [
+    { value: 'like', display: 'Contains' },
+    { value: '=', display: 'Equals To' },
+    { value: '<>', display: 'Not Equals To' },
+    { value: '>', display: 'Greater than' },
+    { value: '<', display: 'Less than' },
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -87,7 +117,9 @@ export class AcquUserEntityComponent implements OnInit {
     this.loadPhoneModels();
     this.initForm();
   }
-
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+  }
   private initForm() {
     this.userForm = this.fb.group({
       userEntityId: [null],
@@ -103,12 +135,55 @@ export class AcquUserEntityComponent implements OnInit {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
+ 
 
+  addFilter() {
+    const filter: SearchCriteria = {
+      field: this.searchField,
+      operator: this.searchType,
+      value: this.searchValue
+    };
+    this.filters.push(filter);
+    this.searchValue = '';  // Reset search input
+  }
   loadData() {
-    this.acquUserEntityService.getUsers().subscribe({
+    var acquUserEntitySearchParams: AcquUserEntitySearchParams = {
+      criteriaList: this.filters,
+      createdFrom: this.createdFromPicker,
+      createdTo: this.createdToPicker,
+      updatedFrom: this.updatedFromPicker,
+      updatedTo: this.updatedToPicker
+    };
+
+    this.acquUserEntityService.getUsers(acquUserEntitySearchParams).subscribe({
       next: (data) => {
         this.dataSource.data = data;
-        this.showMessage('Data loaded successfully', 'success');
+         this.paginator.pageSize = 5;  // Ensure page size is set to 5
+
+         if (this.filters.length > 0) {
+          // Has filters
+          if (this.createdFromPicker && this.createdToPicker) {
+              this.showMessage('Data loaded successfully with filters with selected created date range', 'success');
+          } else if (this.updatedFromPicker && this.updatedToPicker) {
+              this.showMessage('Data loaded successfully with filters with selected updated date range', 'success');
+          } else if (this.createdFromPicker || this.createdToPicker || this.updatedFromPicker || this.updatedToPicker) {
+              this.showMessage('Data loaded successfully with filters and date range', 'success');
+          } else {
+              this.showMessage('Data loaded successfully with filters', 'success');
+          }
+      } else {
+          // No filters
+          if (this.createdFromPicker && this.createdToPicker) {
+              this.showMessage('Data loaded successfully with selected created date range', 'success');
+          } else if (this.updatedFromPicker && this.updatedToPicker) {
+              this.showMessage('Data loaded successfully with selected updated date range', 'success');
+          } else if (this.createdFromPicker || this.createdToPicker || this.updatedFromPicker || this.updatedToPicker) {
+              this.showMessage('Data loaded successfully with selected date range', 'success');
+          } else {
+              this.showMessage('Data loaded successfully without any filters or date range', 'success');
+          }
+      }
+
       },
       error: (error) => this.showMessage('Error loading data', 'error')
     });
@@ -267,4 +342,29 @@ export class AcquUserEntityComponent implements OnInit {
   reloadData() {
     this.loadData();
   }
+
+  removeFilter(index: number) {
+    this.filters.splice(index, 1);
+    if(this.filters.length == 0) {
+      this.loadData();
+    }
+  }
+  operationTxt(value: string): string {
+    // Find the option in the array that matches the value
+    const option = this.searchTypeOptions.find(option => option.value === value);
+  
+    // If a match is found, return the display value; otherwise, return the value itself
+    return option ? option.display : value;
+  } 
+  fieldTxt(value: string): string {
+    // Find the option in the array that matches the value
+    const option = this.searchFieldOptions.find(option => option.value === value);
+  
+    // If a match is found, return the display value; otherwise, return the value itself
+    return option ? option.display : value;
+  }
+  formatDate(date: Date): string {
+    return formatDate(date, 'yyyy/MM/dd', 'en-US');
+  }
+  
 }
