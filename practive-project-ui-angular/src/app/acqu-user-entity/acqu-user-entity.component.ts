@@ -139,6 +139,10 @@ export class AcquUserEntityComponent implements OnInit {
  
 
   addFilter() {
+    if(this.searchValue.length == 0) {
+      this.showMessage(`Please enter search value`, 'error');
+      return;
+    }
     const filter: SearchCriteria = {
       field: this.searchField,
       operator: this.searchType,
