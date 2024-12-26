@@ -118,6 +118,8 @@ export class AcquUserEntityComponent implements OnInit {
   }
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
+    console.log(this.sort); // Should log the MatSort instance
+    this.dataSource.sort = this.sort;
   }
   private initForm() {
     this.userForm = this.fb.group({
@@ -157,6 +159,8 @@ export class AcquUserEntityComponent implements OnInit {
     this.acquUserEntityService.getUsers(acquUserEntitySearchParams).subscribe({
       next: (data) => {
         this.dataSource.data = data;
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
 
          if (this.filters.length > 0) {
           // Has filters
@@ -289,9 +293,7 @@ export class AcquUserEntityComponent implements OnInit {
 
   private showMessage(message: string, type: 'success' | 'error') {
     this.message = message;
-    this.messageClass = type === 'success' ? 
-      'bg-green-100 text-green-800' : 
-      'bg-red-100 text-red-800';
+    this.messageClass = type;
     setTimeout(() => this.message = '', 3000);
   }
 
