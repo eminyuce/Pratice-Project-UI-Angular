@@ -214,3 +214,39 @@ input[type=text], input[type=number], input[type=date], input[type=datetime-loca
   padding: 0;
   list-style-type: none;
 }
+
+
+/* Style for the table header */
+.custom-header-cell {
+  font-weight: bold;
+  background-color: #f5f5f5; /* Light grey background */
+  color: #333; /* Dark text for contrast */
+}
+
+/* Optional: Add some padding for better appearance */
+.custom-header-cell {
+  padding: 12px;
+}
+
+/* Custom styles for action buttons */
+.action-button {
+  color: #fff; /* White text */
+  background-color: #1976d2; /* Material blue for primary buttons */
+  border-radius: 50%; /* Circular buttons */
+  width: 40px; /* Fixed width */
+  height: 40px; /* Fixed height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 4px; /* Space between buttons */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Slight shadow for a raised effect */
+  transition: background-color 0.3s ease;
+}
+
+.action-button:hover {
+  background-color: #1565c0; /* Darker blue on hover */
+}
+
+.action-button.mat-icon-button {
+  padding: 0; /* Remove default padding for icon buttons */
+}

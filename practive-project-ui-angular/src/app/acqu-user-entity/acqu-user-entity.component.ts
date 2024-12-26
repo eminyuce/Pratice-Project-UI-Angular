@@ -21,7 +21,6 @@ import { AcquUserEntityServiceBase } from '../services/acqu-user-entity-service-
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../shared/material.module';
-import { AcquUserEntityModule } from './acqu-user-entity.module';
 import { SearchCriteria } from '../models/search-criteria.model';
 import { formatDate } from '@angular/common';
 import { AcquUserEntitySearchParams } from '../models/acqu-user-entity-search-params';
@@ -48,7 +47,7 @@ import { AcquUserEntitySearchParams } from '../models/acqu-user-entity-search-pa
     MatIconModule,
     MatButtonModule,
     MatCardModule,
-    ConfirmDialogComponent,MaterialModule,AcquUserEntityModule
+    MaterialModule
   ],
   providers: [
     { provide: AcquUserEntityServiceBase, useClass: AcquUserEntityStaticService }
@@ -56,8 +55,8 @@ import { AcquUserEntitySearchParams } from '../models/acqu-user-entity-search-pa
 })
 export class AcquUserEntityComponent implements OnInit {
   displayedColumns = [
-    'select', 'userEntityId', 'userName', 'userEmail', 'phoneModel',
-    'userDescription', 'status', 'createdDate', 'updatedDate', 'actions'
+    'select', 'actions',  'userName', 'userEmail', 'phoneModel',
+    'userDescription', 'status', 'createdDate', 'updatedDate'
   ];
   searchField: string = '';
   searchType: string = '';
@@ -158,7 +157,6 @@ export class AcquUserEntityComponent implements OnInit {
     this.acquUserEntityService.getUsers(acquUserEntitySearchParams).subscribe({
       next: (data) => {
         this.dataSource.data = data;
-         this.paginator.pageSize = 5;  // Ensure page size is set to 5
 
          if (this.filters.length > 0) {
           // Has filters

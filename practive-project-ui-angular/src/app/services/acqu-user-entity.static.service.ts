@@ -21,25 +21,41 @@ export class AcquUserEntityStaticService extends AcquUserEntityServiceBase {
   constructor() {
     super();
   }
-
+  private firstNames = ['John', 'Jane', 'Alex', 'Chris', 'Sam', 'Taylor', 'Jordan', 'Morgan', 'Casey', 'Drew'];
+  private lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez'];
+  private emailDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'example.org'];
+  private descriptions = [
+    'An active user who frequently interacts with the platform.',
+    'A user who has recently joined.',
+    'A long-term member with consistent activity.',
+    'A member interested in technology and gadgets.',
+    'A casual user with sporadic activity.',
+    'A user who prefers mobile-friendly applications.'
+  ];
   // Method to generate 300 static users
   private generateStaticUsers(): AcquUserEntity[] {
     const users: AcquUserEntity[] = [];
     for (let i = 1; i <= 500; i++) {
+      const firstName = this.firstNames[i % this.firstNames.length];
+      const lastName = this.lastNames[i % this.lastNames.length];
+      const emailDomain = this.emailDomains[i % this.emailDomains.length];
+      const description = this.descriptions[i % this.descriptions.length];
+  
       users.push({
         userEntityId: i,
-        userName: `User ${i}`,
-        userEmail: `user${i}@example.com`,
+        userName: `${firstName} ${lastName}`,
+        userEmail: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${i}@${emailDomain}`,
         phoneModel: this.staticPhoneModels[i % this.staticPhoneModels.length],
-        userDescription: `This is a description for User ${i}.`,
+        userDescription: description,
         status: i % 4 === 0 ? 'DELETED' : i % 3 === 0 ? 'FROZEN' : 'LIVE',
-        createdDate: new Date(2023, 0, i),
-        updatedDate: new Date(2023, 0, (i + 1)% 30),
+        createdDate: new Date(2021, Math.floor(i / 30) % 12, (i % 28) + 1),
+        updatedDate: new Date(2023, Math.floor(i / 30) % 12, (i % 28) + 2),
       });
     }
+  
     return users;
   }
-
+  
   private staticUsers = this.generateStaticUsers();
 
   getUsers(acquUserEntitySearchParams: AcquUserEntitySearchParams): Observable<AcquUserEntity[]> {
