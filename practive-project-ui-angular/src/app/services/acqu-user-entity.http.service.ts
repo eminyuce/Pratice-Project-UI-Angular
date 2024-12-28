@@ -1,32 +1,25 @@
 // user.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { AcquUserEntity } from '../models/acqu-user-entity';
 import { AcquUserEntityServiceBase } from './acqu-user-entity-service-base'; 
 import { AcquUserEntitySearchParams } from '../models/acqu-user-entity-search-params';
+import { PagedResponse } from '../models/paged-response';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class AcquUserEntityHttpService extends AcquUserEntityServiceBase {
-  private readonly baseUrl = '/api/users';
+  private readonly baseUrl = 'http://localhost:8080/api/acqu-users';
 
   constructor(private http: HttpClient) {
     super();
   }
 
-  getUsers(acquUserEntitySearchParams: AcquUserEntitySearchParams): Observable<AcquUserEntity[]> {
-    let params = new HttpParams();
-   
-    return this.http.get<AcquUserEntity[]>(`${this.baseUrl}`, { params }).pipe(
-      map(users => users.map(user => ({
-        ...user,
-        createdDate: new Date(user.createdDate),
-        updatedDate: new Date(user.updatedDate)
-      })))
-    );
+  getUsers(acquUserEntitySearchParams: AcquUserEntitySearchParams): Observable<PagedResponse<AcquUserEntity>> {
+    return this.http.post<PagedResponse<AcquUserEntity>>(`${this.baseUrl}`+"/paging", acquUserEntitySearchParams);
   }
 
   createUser(user: Partial<AcquUserEntity>): Observable<AcquUserEntity> {

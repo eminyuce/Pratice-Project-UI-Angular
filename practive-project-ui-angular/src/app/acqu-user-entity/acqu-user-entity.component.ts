@@ -24,6 +24,7 @@ import { MaterialModule } from '../shared/material.module';
 import { SearchCriteria } from '../models/search-criteria.model';
 import { formatDate } from '@angular/common';
 import { AcquUserEntitySearchParams } from '../models/acqu-user-entity-search-params';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-acqu-user-entity',
@@ -47,10 +48,10 @@ import { AcquUserEntitySearchParams } from '../models/acqu-user-entity-search-pa
     MatIconModule,
     MatButtonModule,
     MatCardModule,
-    MaterialModule
+    MaterialModule,HttpClientModule
   ],
   providers: [
-    { provide: AcquUserEntityServiceBase, useClass: AcquUserEntityStaticService }
+    { provide: AcquUserEntityServiceBase, useClass: AcquUserEntityHttpService }
   ]
 })
 export class AcquUserEntityComponent implements OnInit {
@@ -162,7 +163,7 @@ export class AcquUserEntityComponent implements OnInit {
 
     this.acquUserEntityService.getUsers(acquUserEntitySearchParams).subscribe({
       next: (data) => {
-        this.dataSource.data = data;
+        this.dataSource.data = data.content;
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
 

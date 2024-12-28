@@ -5,6 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { AcquUserEntityServiceBase } from './acqu-user-entity-service-base'; // Adjust the path as necessary
 import { AcquUserEntity } from '../models/acqu-user-entity';
 import { AcquUserEntitySearchParams } from '../models/acqu-user-entity-search-params';
+import { PagedResponse } from '../models/paged-response';
 
 @Injectable({
   providedIn: 'root',
@@ -58,9 +59,16 @@ export class AcquUserEntityStaticService extends AcquUserEntityServiceBase {
   
   private staticUsers = this.generateStaticUsers();
 
-  getUsers(acquUserEntitySearchParams: AcquUserEntitySearchParams): Observable<AcquUserEntity[]> {
+  getUsers(acquUserEntitySearchParams: AcquUserEntitySearchParams): Observable<PagedResponse<AcquUserEntity>> {
     let filteredUsers = this.staticUsers;
-    return of(filteredUsers);
+    var pagedResponse: PagedResponse<AcquUserEntity> = {
+      content: filteredUsers,
+      totalElements: filteredUsers.length,
+      totalPages: 1,
+      size: filteredUsers.length,
+      number: 0
+    };
+    return of(pagedResponse);
   }
 
   createUser(user: Partial<AcquUserEntity>): Observable<AcquUserEntity> {

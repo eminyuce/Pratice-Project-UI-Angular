@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MaterialModule } from './shared/material.module';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 
 
 @Component({
@@ -9,7 +10,8 @@ import { CommonModule } from '@angular/common';
   imports: [
     RouterOutlet, 
     CommonModule,
-    MaterialModule
+    MaterialModule,
+    HttpClientModule
     ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
