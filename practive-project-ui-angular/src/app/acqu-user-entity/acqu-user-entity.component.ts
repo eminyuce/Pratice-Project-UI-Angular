@@ -25,6 +25,8 @@ import { SearchCriteria } from '../models/search-criteria.model';
 import { formatDate } from '@angular/common';
 import { AcquUserEntitySearchParams } from '../models/acqu-user-entity-search-params';
 import { HttpClientModule } from '@angular/common/http';
+import { SearchFieldOption } from '../models/search-field-option';
+import {  SearchTypeOption } from  '../models/search-type-option';
 
 @Component({
   selector: 'app-acqu-user-entity',
@@ -84,24 +86,8 @@ export class AcquUserEntityComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-   searchFieldOptions = [
-    { value: 'userEntityId', display: 'User Entity ID' },
-    { value: 'userName', display: 'User Name' },
-    { value: 'userEmail', display: 'User Email' },
-    { value: 'phoneModel', display: 'Phone Model' },
-    { value: 'userDescription', display: 'User Description' },
-    { value: 'status', display: 'Status' },
-    { value: 'createdDate', display: 'Created Date' },
-    { value: 'updatedDate', display: 'Updated Date' }
-  ];
-  
-  searchTypeOptions = [
-    { value: 'like', display: 'Contains' },
-    { value: '=', display: 'Equals To' },
-    { value: '<>', display: 'Not Equals To' },
-    { value: '>', display: 'Greater than' },
-    { value: '<', display: 'Less than' },
-  ];
+  searchFieldOptions: SearchFieldOption[] = [];
+  searchTypeOptions: SearchTypeOption[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -113,6 +99,8 @@ export class AcquUserEntityComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.loadSearchFieldOptions();
+    this.loadSearchTypeOptions();
     this.loadData();
     this.loadPhoneModels();
     this.initForm();
@@ -137,7 +125,18 @@ export class AcquUserEntityComponent implements OnInit {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
- 
+  loadSearchFieldOptions() {
+    this.acquUserEntityService.getSearchFieldOptions().subscribe({
+      next: (options) => this.searchFieldOptions = options,
+      error: (error) => console.error('Error loading search field options:', error)
+    });
+  }
+  loadSearchTypeOptions() {
+    this.acquUserEntityService.getSearchTypeOptions().subscribe({
+      next: (options) => this.searchTypeOptions = options,
+      error: (error) => console.error('Error loading search type options:', error)
+    });
+  }
 
   addFilter() {
     if(this.searchValue.length == 0) {

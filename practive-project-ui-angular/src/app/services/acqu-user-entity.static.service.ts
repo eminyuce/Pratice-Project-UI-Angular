@@ -6,6 +6,8 @@ import { AcquUserEntityServiceBase } from './acqu-user-entity-service-base'; // 
 import { AcquUserEntity } from '../models/acqu-user-entity';
 import { AcquUserEntitySearchParams } from '../models/acqu-user-entity-search-params';
 import { PagedResponse } from '../models/paged-response';
+import { SearchFieldOption } from '../models/search-field-option';
+import { SearchTypeOption } from '../models/search-type-option';
 
 @Injectable({
   providedIn: 'root',
@@ -208,4 +210,32 @@ export class AcquUserEntityStaticService extends AcquUserEntityServiceBase {
       })
     );
   }
+
+  // Static method to return search field options
+  getSearchFieldOptions(): Observable<SearchFieldOption[]> {
+    const options: SearchFieldOption[] = [
+      { value: 'userEntityId', display: 'User Entity ID' },
+      { value: 'userName', display: 'User Name' },
+      { value: 'userEmail', display: 'User Email' },
+      { value: 'phoneModel', display: 'Phone Model' },
+      { value: 'userDescription', display: 'User Description' },
+      { value: 'status', display: 'Status' },
+      { value: 'createdDate', display: 'Created Date' },
+      { value: 'updatedDate', display: 'Updated Date' }
+    ];
+
+    return of(options); // Wrap the array in an Observable
+  }
+    // Fetch search type options from the backend
+ getSearchTypeOptions(): Observable<SearchTypeOption[]> {
+  const options: SearchTypeOption[] = [
+      { value: 'like', display: 'Contains' },
+      { value: '=', display: 'Equals To' },
+      { value: '<>', display: 'Not Equals To' },
+      { value: '>', display: 'Greater than' },
+      { value: '<', display: 'Less than' }
+    ];
+    return of(options); // Wrap the array in an Observable
+  }
+
 }

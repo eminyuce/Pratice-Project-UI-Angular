@@ -5,6 +5,8 @@ import { AcquUserEntity } from '../models/acqu-user-entity';
 import { AcquUserEntityServiceBase } from './acqu-user-entity-service-base';
 import { AcquUserEntitySearchParams } from '../models/acqu-user-entity-search-params';
 import { PagedResponse } from '../models/paged-response';
+import { SearchFieldOption } from '../models/search-field-option';
+import { SearchTypeOption } from '../models/search-type-option';
 
 @Injectable({
   providedIn: 'root',
@@ -58,4 +60,13 @@ export class AcquUserEntityHttpService extends AcquUserEntityServiceBase {
   getAuditTrail(userId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/${userId}/audit`);
   }
+   // Fetch search field options from the backend
+  getSearchFieldOptions(): Observable<SearchFieldOption[]> {
+    return this.http.get<SearchFieldOption[]>(`${this.baseUrl}/search-field-options`);
+  }
+    // Fetch search type options from the backend
+    getSearchTypeOptions(): Observable<SearchTypeOption[]> {
+      return this.http.get<SearchTypeOption[]>(`${this.baseUrl}/search-type-options`);
+    }
+    
 }
