@@ -51,7 +51,7 @@ import { HttpClientModule } from '@angular/common/http';
     MaterialModule,HttpClientModule
   ],
   providers: [
-    { provide: AcquUserEntityServiceBase, useClass: AcquUserEntityStaticService }
+    { provide: AcquUserEntityServiceBase, useClass: AcquUserEntityHttpService }
   ]
 })
 export class AcquUserEntityComponent implements OnInit {
@@ -276,7 +276,16 @@ export class AcquUserEntityComponent implements OnInit {
   }
 
   exportToExcel() {
-    this.acquUserEntityService.exportToExcel().subscribe({
+    var acquUserEntitySearchParams: AcquUserEntitySearchParams = {
+      criteriaList: this.filters,
+      createdFrom: this.createdFrom,
+      createdTo: this.createdTo,
+      updatedFrom: this.updatedFrom,
+      updatedTo: this.updatedTo
+    };
+
+
+    this.acquUserEntityService.exportToExcel(acquUserEntitySearchParams).subscribe({
       next: (data: Blob) => {
         const url = window.URL.createObjectURL(data);
         const link = document.createElement('a');

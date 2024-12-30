@@ -186,7 +186,7 @@ export class AcquUserEntityStaticService extends AcquUserEntityServiceBase {
     );
   }
 
-  exportToExcel(): Observable<Blob> {
+  exportToExcel(acquUserEntitySearchParams: AcquUserEntitySearchParams): Observable<Blob> {
     const blob = new Blob(['Static Excel Data'], { type: 'application/vnd.ms-excel' });
     return of(blob).pipe(
       catchError((error) => {

@@ -13,6 +13,6 @@ export abstract class AcquUserEntityServiceBase {
   abstract updatePhoneModel(user: AcquUserEntity): Observable<AcquUserEntity>;
   abstract updateBulkStatus(users: AcquUserEntity[], bulkStatus: string): Observable<any>;
   abstract deleteDeletedRecords(): Observable<any>;
-  abstract exportToExcel(): Observable<Blob>;
+  abstract exportToExcel(acquUserEntitySearchParams: AcquUserEntitySearchParams): Observable<Blob>;
   abstract getAuditTrail(userId: number): Observable<any[]>;
 }
