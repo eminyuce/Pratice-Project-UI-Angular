@@ -61,15 +61,68 @@ export class AcquUserEntityStaticService extends AcquUserEntityServiceBase {
 
   getUsers(acquUserEntitySearchParams: AcquUserEntitySearchParams): Observable<PagedResponse<AcquUserEntity>> {
     let filteredUsers = this.staticUsers;
-    var pagedResponse: PagedResponse<AcquUserEntity> = {
+  
+    // Apply criteriaList filters
+    if (acquUserEntitySearchParams.criteriaList && acquUserEntitySearchParams.criteriaList.length > 0) {
+      acquUserEntitySearchParams.criteriaList.forEach((criteria) => {
+        filteredUsers = filteredUsers.filter((user) => {
+          const fieldValue = (user as any)[criteria.field];
+  
+          switch (criteria.operator) {
+            case 'like':
+              return typeof fieldValue === 'string' && fieldValue.includes(criteria.value);
+            case '=':
+              return fieldValue == criteria.value; // Use loose equality for numeric/string flexibility
+            case '<>':
+              return fieldValue != criteria.value;
+            case '>':
+              return fieldValue > criteria.value;
+            case '<':
+              return fieldValue < criteria.value;
+            default:
+              return true; // Ignore unsupported operators
+          }
+        });
+      });
+    }
+  
+    // Apply date range filters for createdDate
+    if (acquUserEntitySearchParams.createdFrom) {
+      filteredUsers = filteredUsers.filter(
+        (user) => user.createdDate >= acquUserEntitySearchParams.createdFrom!
+      );
+    }
+    if (acquUserEntitySearchParams.createdTo) {
+      filteredUsers = filteredUsers.filter(
+        (user) => user.createdDate <= acquUserEntitySearchParams.createdTo!
+      );
+    }
+  
+    // Apply date range filters for updatedDate
+    if (acquUserEntitySearchParams.updatedFrom) {
+      filteredUsers = filteredUsers.filter(
+        (user) => user.updatedDate >= acquUserEntitySearchParams.updatedFrom!
+      );
+    }
+    if (acquUserEntitySearchParams.updatedTo) {
+      filteredUsers = filteredUsers.filter(
+        (user) => user.updatedDate <= acquUserEntitySearchParams.updatedTo!
+      );
+    }
+  
+    // Create paged response
+    const pagedResponse: PagedResponse<AcquUserEntity> = {
       content: filteredUsers,
       totalElements: filteredUsers.length,
       totalPages: 1,
       size: filteredUsers.length,
-      number: 0
+      number: 0,
     };
+  
     return of(pagedResponse);
   }
+  
+  
 
   createUser(user: Partial<AcquUserEntity>): Observable<AcquUserEntity> {
     const newUser: AcquUserEntity = {
@@ -93,7 +146,7 @@ export class AcquUserEntityStaticService extends AcquUserEntityServiceBase {
 
   deleteUser(id: number): Observable<void> {
     this.staticUsers = this.staticUsers.filter((user) => user.userEntityId !== id);
-    return of();
+    return of(undefined); // Emits `undefined` and completes
   }
 
   getPhoneModels(): Observable<string[]> {

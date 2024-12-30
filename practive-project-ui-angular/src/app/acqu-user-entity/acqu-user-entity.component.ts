@@ -51,7 +51,7 @@ import { HttpClientModule } from '@angular/common/http';
     MaterialModule,HttpClientModule
   ],
   providers: [
-    { provide: AcquUserEntityServiceBase, useClass: AcquUserEntityHttpService }
+    { provide: AcquUserEntityServiceBase, useClass: AcquUserEntityStaticService }
   ]
 })
 export class AcquUserEntityComponent implements OnInit {
